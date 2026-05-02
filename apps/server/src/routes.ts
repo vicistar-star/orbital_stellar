@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from "express";
 import { StrKey, type EventEngine } from "@orbital/pulse-core";
 import type { WebhookRegistry } from "./registry.js";
 import { requireApiKey } from "./auth.js";
+import { sendProblem } from "./errors.js";
 
 // --- SSRF-safe URL validation ---
 
@@ -44,30 +45,30 @@ export function createRoutes(registry: WebhookRegistry, engine: EventEngine, act
     const { address, url, secret } = req.body as Record<string, unknown>;
 
     if (!address || !url || !secret) {
-      res.status(400).json({ error: "address, url and secret are required" });
+      sendProblem(res, 400, "Missing Required Fields", "address, url and secret are required");
       return;
     }
 
     if (typeof address !== "string" || typeof url !== "string" || typeof secret !== "string") {
-      res.status(400).json({ error: "address, url and secret must be strings" });
+      sendProblem(res, 400, "Invalid Field Types", "address, url and secret must be strings");
       return;
     }
 
     // Validate Stellar public key
     if (!StrKey.isValidEd25519PublicKey(address)) {
-      res.status(400).json({ error: "address must be a valid Stellar public key" });
+      sendProblem(res, 400, "Invalid Stellar Key", "address must be a valid Stellar public key");
       return;
     }
 
     // Validate webhook URL (HTTPS, no SSRF)
     const urlError = validateWebhookUrl(url);
     if (urlError) {
-      res.status(400).json({ error: urlError });
+      sendProblem(res, 400, "Invalid Webhook URL", urlError);
       return;
     }
 
     if (registry.has(address)) {
-      res.status(409).json({ error: "Address already registered" });
+      sendProblem(res, 409, "Address Already Registered", "This address already has a registered webhook");
       return;
     }
 
@@ -81,7 +82,7 @@ export function createRoutes(registry: WebhookRegistry, engine: EventEngine, act
     const removed = registry.unregister(address);
 
     if (!removed) {
-      res.status(404).json({ error: "Address not registered" });
+      sendProblem(res, 404, "Not Found", `Address ${address} is not registered`);
       return;
     }
 
@@ -97,7 +98,7 @@ export function createRoutes(registry: WebhookRegistry, engine: EventEngine, act
   router.get("/webhooks/:address", (req: Request<{ address: string }>, res: Response) => {
     const { address } = req.params;
     if (!registry.has(address)) {
-      res.status(404).json({ error: "Address not registered" });
+      sendProblem(res, 404, "Not Found", `Address ${address} is not registered`);
       return;
     }
     // list() already strips secrets; find the one entry

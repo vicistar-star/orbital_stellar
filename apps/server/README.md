@@ -6,14 +6,14 @@ This is the binary that a self-hoster runs. Everything else in Orbital is a libr
 
 ## Endpoints
 
-| Method | Path | Description |
-|---|---|---|
-| `POST` | `/v1/webhooks/register` | Register an address → webhook URL mapping |
-| `DELETE` | `/v1/webhooks/:address` | Unregister an address |
-| `GET` | `/v1/webhooks` | List registered webhooks (secrets stripped) |
-| `GET` | `/v1/webhooks/:address` | Get a single registration |
-| `GET` | `/v1/events/:address` | Server-Sent Events stream for live events |
-| `GET` | `/health` | Liveness probe |
+| Method   | Path                 | Description                                 |
+| -------- | -------------------- | ------------------------------------------- |
+| `POST`   | `/webhooks/register` | Register an address → webhook URL mapping   |
+| `DELETE` | `/webhooks/:address` | Unregister an address                       |
+| `GET`    | `/webhooks`          | List registered webhooks (secrets stripped) |
+| `GET`    | `/webhooks/:address` | Get a single registration                   |
+| `GET`    | `/events/:address`   | Server-Sent Events stream for live events   |
+| `GET`    | `/health`            | Liveness probe                              |
 
 All endpoints except `/health` require an API key — either `Authorization: Bearer <key>` (REST) or `?token=<key>` (SSE, since browsers cannot set headers on `EventSource`).
 
@@ -57,12 +57,47 @@ useStellarEvent({
 
 ## Environment variables
 
-| Variable | Required | Description |
-|---|---|---|
-| `NETWORK` | yes | `mainnet` or `testnet` |
-| `API_KEY` | yes | Bearer token clients must present |
-| `PORT` | no | HTTP port (default `3000`) |
-| `WEBHOOK_SECRET` | no | HMAC key used to hash stored webhook secrets |
+| Variable         | Required | Description                                  |
+| ---------------- | -------- | -------------------------------------------- |
+| `NETWORK`        | yes      | `mainnet` or `testnet`                       |
+| `API_KEY`        | yes      | Bearer token clients must present            |
+| `PORT`           | no       | HTTP port (default `3000`)                   |
+| `WEBHOOK_SECRET` | no       | HMAC key used to hash stored webhook secrets |
+
+## Error responses
+
+All error responses follow [RFC 7807](https://tools.ietf.org/html/rfc7807) (Problem Details for HTTP APIs) and are returned with `Content-Type: application/problem+json`.
+
+### Error response shape
+
+```json
+{
+  "type": "https://api.orbital.dev/errors/invalid-stellar-key",
+  "title": "Invalid Stellar Key",
+  "status": 400,
+  "detail": "address must be a valid Stellar public key",
+  "instance": "https://api.orbital.dev/requests/550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+| Field      | Type   | Description                                             |
+| ---------- | ------ | ------------------------------------------------------- |
+| `type`     | string | A machine-readable error identifier (typically a URI)   |
+| `title`    | string | A short, human-readable error summary                   |
+| `status`   | number | The HTTP status code                                    |
+| `detail`   | string | A specific explanation for this occurrence              |
+| `instance` | string | Optional: A unique identifier for this error occurrence |
+
+### Common error responses
+
+| Status | Title                        | Description                                    |
+| ------ | ---------------------------- | ---------------------------------------------- |
+| 400    | `Missing Required Fields`    | Request body is missing required fields        |
+| 400    | `Invalid Field Types`        | Field types do not match expectations          |
+| 400    | `Invalid Stellar Key`        | Address is not a valid Stellar public key      |
+| 400    | `Invalid Webhook URL`        | URL must be HTTPS and not point to private IPs |
+| 409    | `Address Already Registered` | This address already has an active webhook     |
+| 404    | `Not Found`                  | The requested address is not registered        |
 
 ## Security defaults
 

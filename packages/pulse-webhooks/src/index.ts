@@ -1,4 +1,4 @@
-import type { NormalizedEvent, Watcher } from "@orbital/pulse-core";
+import type { NormalizedEvent, Watcher, WatcherNotification } from "@orbital/pulse-core";
 import { createHmac, timingSafeEqual } from "crypto";
 
 import type { WebhookConfig } from "./types.js";
@@ -31,7 +31,7 @@ export class WebhookDelivery {
       this.clearRetryTimers();
     });
 
-    this.watcher.on("*", (event: NormalizedEvent) => {
+    this.watcher.on("*", (event: NormalizedEvent | WatcherNotification) => {
       if ("raw" in event) {
         for (const url of this.config.urls) {
           void this.deliverToUrl(event, url);

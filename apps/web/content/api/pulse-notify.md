@@ -7,7 +7,7 @@ description: React hooks for subscribing to live Stellar events.
 
 `@orbital/pulse-notify` opens a browser-native `EventSource` connection to a backend that exposes Orbital events as Server-Sent Events, subscribes to an address, and re-renders your component whenever a new event arrives.
 
-The hooks are intentionally thin — no global store, no custom cache, no peer dependency on a state manager. You point them at your own backend (built on `@orbital/pulse-core`, or the reference `apps/server`, or future Orbital Cloud) and pass the address you want to watch.
+The hooks are intentionally thin — no global store, no custom cache, no peer dependency on a state manager. You point them at your own backend (built on `@orbital/pulse-core` — `apps/web` ships a copy-paste reference at `app/api/events/[address]/route.ts`) or at Orbital Cloud (in development), and pass the address you want to watch.
 
 ## Installation
 

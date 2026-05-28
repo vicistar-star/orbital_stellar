@@ -81,7 +81,7 @@ Cloudflare Workers? Use `verifyWebhookEdge` instead — same arguments, returns 
 
 ## 3. Add React hooks (`pulse-notify`)
 
-The React hooks open a browser `EventSource` connection to a backend that exposes Orbital events as SSE. You can stand that backend up yourself with `pulse-core` and a few lines of Express, or use the reference `apps/server` for prototyping.
+The React hooks open a browser `EventSource` connection to a backend that exposes Orbital events as SSE. You can stand that backend up yourself with `pulse-core` and a few lines of Express, or copy the Next.js route handler that powers the demo on this site (`apps/web/app/api/events/[address]/route.ts` in the repo).
 
 ```tsx
 "use client";

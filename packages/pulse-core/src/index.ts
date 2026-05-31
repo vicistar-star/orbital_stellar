@@ -1,5 +1,12 @@
 export { EventEngine } from "./EventEngine.js";
 export { Watcher } from "./Watcher.js";
+export { SorobanSubscriber } from "./SorobanSubscriber.js";
+export type {
+  SorobanSubscriberOptions,
+  SorobanRpc,
+  SorobanEvent,
+  CursorStore as SorobanCursorStore,
+} from "./SorobanSubscriber.js";
 export { EngineAlreadyStartedError, HorizonStreamError } from "./errors.js";
 export { StrKey } from "@stellar/stellar-sdk";
 export { CursorStore } from "./CursorStore.js";

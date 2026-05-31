@@ -1,4 +1,5 @@
 export { EventEngine } from "./EventEngine.js";
+export { validateContractFilters } from "./contractFilters.js";
 export { Watcher } from "./Watcher.js";
 export { EngineAlreadyStartedError, HorizonStreamError } from "./errors.js";
 export { StrKey } from "@stellar/stellar-sdk";

@@ -17,7 +17,6 @@ import type {
   ContractSubscribeOptions,
   ContractSubscriptionFilter,
   CoreConfig,
-  EngineStatus,
   DataEvent,
   DataEventType,
   EngineStatus,
@@ -100,7 +99,6 @@ export class EventEngine {
   private horizonCursor?: string;
   private filters: Map<string, (event: NormalizedEvent) => boolean> = new Map();
   private log: Logger;
-  private lastEventAt: string | null = null;
 
   /**
    * Creates a new EventEngine instance.

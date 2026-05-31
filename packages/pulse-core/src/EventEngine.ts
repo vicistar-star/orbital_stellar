@@ -1,6 +1,8 @@
 import { Horizon } from "@stellar/stellar-sdk";
 import { Watcher } from "./Watcher.js";
 import { EngineAlreadyStartedError, HorizonStreamError } from "./errors.js";
+import { SorobanSubscriber } from "./SorobanSubscriber.js";
+import type { SorobanRpcLike, SorobanEvent } from "./SorobanSubscriber.js";
 import type {
   AccountCreatedEvent,
   AccountEventType,
@@ -223,6 +225,55 @@ export class EventEngine {
    */
   unsubscribeContract(id: string): void {
     this.contractRegistry.get(id)?.watcher.stop();
+  }
+
+  /**
+   * Performs a one-shot bounded replay of Soroban contract events between two
+   * ledger positions.
+   *
+   * - Events are delivered to `onEvent` in ledger order.
+   * - `onDone` is called once every event whose ledger is < `endLedger` has
+   *   been delivered, or when the RPC reports no further events.
+   * - The `CursorStore` is **not** consulted or updated during replay: cursors
+   *   are ephemeral and progress is intentionally discarded when the run ends.
+   *
+   * @param options.rpc         - A Soroban RPC client compatible with `SorobanRpcLike`.
+   * @param options.filters     - Optional contract subscription filters (same semantics as `subscribeContract`).
+   * @param options.startLedger - Ledger sequence to begin replay from (passed as initial cursor hint).
+   * @param options.endLedger   - Ledger sequence at which replay stops (exclusive).
+   * @param options.onEvent     - Called for every event in range.
+   * @param options.onDone      - Called once when replay is complete.
+   * @param options.pageSize    - Optional page size override (default 100).
+   */
+  replayContracts(options: {
+    rpc: SorobanRpcLike;
+    filters?: ContractSubscriptionFilter[];
+    startLedger: number;
+    endLedger: number;
+    onEvent: (event: SorobanEvent) => Promise<void>;
+    onDone: () => void;
+    pageSize?: number;
+  }): SorobanSubscriber {
+    // A no-op CursorStore: replay never reads from or writes to persistent storage.
+    const noCursorStore = {
+      async getCursor(): Promise<string | undefined> {
+        return undefined;
+      },
+      async saveCursor(_cursor: string): Promise<void> {
+        // intentional no-op — replay does not persist cursor progress
+      },
+    };
+
+    const subscriber = new SorobanSubscriber({
+      rpc: options.rpc,
+      cursorStore: noCursorStore,
+      onEvent: options.onEvent,
+      endLedger: options.endLedger,
+      onDone: options.onDone,
+      pageSize: options.pageSize,
+    });
+
+    return subscriber;
   }
 
   /**

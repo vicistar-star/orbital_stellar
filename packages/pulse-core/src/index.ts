@@ -95,7 +95,8 @@ export type WatcherNotificationType =
   | "engine.reconnected"
   | "engine.rate_limited"
   | "engine.stopped"
-  | "engine.cursor_store_unhealthy";
+  | "engine.cursor_store_unhealthy"
+  | "engine.cursor_expired";
 
 export type OfferEventType =
   | "offer.created"
@@ -368,6 +369,10 @@ export type WatcherNotification = {
   delayMs?: number;
   /** ISO 8601 timestamp of when this notification was emitted. */
   emittedAt: string;
+  /** The cursor value that was expired or lost, if applicable. */
+  lostCursor?: string;
+  /** The source engine that encountered the expired cursor. */
+  source?: "horizon" | "soroban";
 };
 
 /**

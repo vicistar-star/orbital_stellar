@@ -639,36 +639,33 @@ export class EventEngine {
     );
   }
 
-  // Decide which getHeaderValue to use
-  // This is the original one when worked on the current PR.
-  // Would comment this out, cos i am assuming it is meant to be stale.
-  // private getHeaderValue(error: unknown, headerName: string): string | null {
-  //   if (!this.isRecord(error)) {
-  //     return null;
-  //   }
+  private getHeaderValue(error: unknown, headerName: string): string | null {
+    if (!this.isRecord(error)) {
+      return null;
+    }
 
-  //   const lowerName = headerName.toLowerCase();
-  //   const directHeader =
-  //     this.getStringField(error, headerName) ??
-  //     this.getStringField(error, lowerName);
-  //   if (directHeader) {
-  //     return directHeader;
-  //   }
+    const lowerName = headerName.toLowerCase();
+    const directHeader =
+      this.getStringField(error, headerName) ??
+      this.getStringField(error, lowerName);
+    if (directHeader) {
+      return directHeader;
+    }
 
-  //   const responseHeaders =
-  //     this.isRecord(error.response) && this.isRecord(error.response.headers)
-  //       ? error.response.headers
-  //       : undefined;
+    const responseHeaders =
+      this.isRecord(error.response) && this.isRecord(error.response.headers)
+        ? error.response.headers
+        : undefined;
 
-  //   for (const headers of [error.headers, responseHeaders]) {
-  //     const value = this.getHeaderValueFromHeaders(headers, headerName);
-  //     if (value) {
-  //       return value;
-  //     }
-  //   }
+    for (const headers of [error.headers, responseHeaders]) {
+      const value = this.getHeaderValueFromHeaders(headers, headerName);
+      if (value) {
+        return value;
+      }
+    }
 
-  //   return null;
-  // }
+    return null;
+  }
 
   private getHeaderValueFromHeaders(headers: unknown, headerName: string): string | null {
     const lowerName = headerName.toLowerCase();
@@ -703,9 +700,6 @@ export class EventEngine {
     return Number.isNaN(date) ? null : Math.max(date - Date.now(), 0);
   }
 
-  // Decide which getHeaderValue to use.
-  // This was introduced in a recent PR merge into main and intrduced here as a result of a merge conflict
-  // I am going to be leaving this active as i am assuming it is necessary for what is currently in main.
   private getHeaderValue(error: unknown, headerName: string): string | null {
     const e = error as Record<string, unknown>;
     const directHeader =

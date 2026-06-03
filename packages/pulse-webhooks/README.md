@@ -1,160 +1,343 @@
-# 🛒 Retail Sales Performance Analysis
-**Tool:** MySQL Workbench | **Dataset:** Sample Superstore (Kaggle) | **Records:** 9,994 transactions
+# @orbital/pulse-webhooks
 
----
+**HMAC-signed webhook delivery for Stellar events.** Attach to a `pulse-core` watcher and every event becomes one or more outbound HTTPS POSTs with a verifiable signature, retry on failure, and configurable timeout.
 
-## 📌 Project Overview
-
-This project applies SQL-based data cleaning and exploratory data analysis (EDA) to a retail sales dataset spanning 4 years, 4 regions, 3 product categories, and 793 unique customers. The goal was to uncover actionable business insights around revenue performance, profitability, customer value, and sales trends.
-
-This project was built as part of my data analysis portfolio to demonstrate practical SQL skills in a real-world business context.
-
----
-
-## 🗂️ Dataset
-
-- **Source:** [Sample Superstore Dataset — Kaggle](https://www.kaggle.com/datasets/vivek468/superstore-dataset-final)
-- **Size:** 9,994 rows × 21 columns
-- **Coverage:** 2014 – 2017 | United States | Furniture, Office Supplies, Technology
-
----
-
-## 🛠️ SQL Concepts Demonstrated
-
-| Concept | Application |
-|---|---|
-| `GROUP BY` + Aggregations | Revenue, profit and margin analysis by category, region and year |
-| `JOIN` | Customer summary table joined to transactions for high-value buyer analysis |
-| CTEs (`WITH`) | Multi-step profitability ranking by category and region |
-| Window Functions (`LAG`, `RANK`) | Month-over-month sales growth and customer spend rankings per region |
-
----
-
-## 🧹 Phase 1: Data Cleaning
-
-Before analysis, the following checks and transformations were performed on a **staging table** (preserving the original data):
-
-- ✅ Checked for duplicate rows using `GROUP BY` + `HAVING`
-- ✅ Checked for NULL values across all critical columns (Sales, Profit, Quantity, Order ID, Customer ID)
-- ✅ Checked for zero or negative sales values
-- ✅ Validated consistency of all categorical columns (Region, Segment, Category, Sub-Category)
-- ✅ Converted `Order Date` and `Ship Date` from text to proper `DATE` format using `STR_TO_DATE()`
-
-**Result:** No duplicates, nulls, or anomalies found. Date columns successfully converted and stored as new cleaned columns.
-
----
-
-## 📊 Phase 2: Exploratory Data Analysis
-
-### 2.1 Sales & Profit by Category
-
-| Category | Total Orders | Total Sales | Total Profit | Profit Margin |
-|---|---|---|---|---|
-| Technology | 1,737 | $805,253 | $140,476 | 17.44% |
-| Furniture | 1,961 | $684,823 | $15,430 | 2.25% |
-| Office Supplies | 5,450 | $664,474 | $115,790 | 17.43% |
-
-> 💡 **Insight:** Furniture generates significant revenue but operates at a dangerously thin 2.25% margin — nearly breaking even on over a third of the business.
-
----
-
-### 2.2 Sales & Profit by Region
-
-| Region | Total Orders | Total Sales | Total Profit | Profit Margin |
-|---|---|---|---|---|
-| West | 2,925 | $673,121 | $98,897 | 14.69% |
-| East | 2,580 | $636,194 | $85,210 | 13.39% |
-| Central | 2,123 | $469,906 | $41,777 | 8.89% |
-| South | 1,520 | $375,328 | $45,811 | 12.21% |
-
-> 💡 **Insight:** The South region has the lowest sales volume but outperforms Central in profit margin (12.21% vs 8.89%) — efficiency matters more than volume alone.
-
----
-
-### 2.3 Year over Year Growth
-
-| Year | Total Orders | Total Sales | Total Profit |
-|---|---|---|---|
-| 2014 | 1,819 | $457,394 | $49,844 |
-| 2015 | 1,936 | $435,258 | $58,931 |
-| 2016 | 2,367 | $568,394 | $75,986 |
-| 2017 | 3,026 | $693,503 | $86,934 |
-
-> 💡 **Insight:** Order volume grew 66% over 4 years. Profit nearly doubled from 2014 to 2017, signalling strong and consistent business growth.
-
----
-
-### 2.4 High Value Customer Analysis (JOINs)
-
-A dedicated `customers` summary table was created and joined back to the transactions table to identify high-value repeat buyers.
-
-**Top 3 findings:**
-- **Sean Miller** — Highest spending customer at $23,669 across 8 orders, almost entirely driven by Technology purchases
-- **Hunter Lopez** — Only 2 orders but $10,522 spent, giving him the highest average order value of $5,261 — high churn risk
-- **Seth Vernon** — 24 orders (most frequent buyer) but only $853 average order value — high engagement, low ticket size
-
----
-
-### 2.5 Most Profitable Products by Category & Region (CTEs)
-
-Multi-step CTEs were used to rank products within each category and region by total profit.
-
-**Key findings:**
-- The **Canon imageCLASS 2200 Advanced Copier** ranked #1 in profitability in 3 out of 4 regions — the single most important product in the business
-- All top 5 Furniture products were **chairs** — confirming that other furniture items (likely tables) are responsible for the category's low overall margin
-- The **Ativa V4110MDD Micro-Cut Shredder** had the highest profit margin of any product at **49%**
-
----
-
-### 2.6 Month over Month Sales Growth (Window Functions)
-
-`LAG()` was used to calculate month-over-month sales growth across all 48 months in the dataset.
-
-**Key findings:**
-- **January** is consistently the weakest month every year — sharp drops of 56–80% following year-end peaks
-- **September** is consistently the strongest growth month — spikes of 85–212% every year, likely driven by Q3 business purchasing cycles
-- **November 2017** recorded the single highest monthly sales figure of **$112,870**
-- Even the weakest January improved over time — from $13,398 in 2015 to $40,534 in 2017, showing the overall floor rising year on year
-
----
-
-### 2.7 Customer Spend Rankings by Region (Window Functions)
-
-`RANK()` with `PARTITION BY` was used to rank customers within each region by total spending.
-
-**Key findings:**
-- **Sean Miller** (South) is the highest spending customer in any single region at $23,669 — more than the top East customer by nearly $10,000
-- **Grant Thornton** (South) ranks 3rd with only 2 orders — another high ticket, low frequency buyer pattern in the South
-- The **West region** has the most balanced top 5 — no extreme outliers in either direction
-
----
-
-## 💡 Key Business Insights Summary
-
-1. **Furniture is a profitability problem** — high revenue but a 2.25% margin that needs immediate investigation into discounting and cost structure
-2. **The Canon imageCLASS 2200 Copier is the most critical product** — top profit driver in 3 of 4 regions; supply chain and stock reliability for this product should be a priority
-3. **Central region underperforms on margin despite decent volume** — high-margin products exist there, meaning heavy discounting on other items is likely the root cause
-4. **January and September are the most predictable seasonal patterns** — reliable enough to inform inventory planning and promotional strategy
-5. **High-value, low-frequency customers (Hunter Lopez, Grant Thornton) represent significant churn risk** — a targeted retention strategy for this segment is worth considering
-
----
-
-## 📁 Repository Structure
-
-```
-retail-sales-performance-analysis/
-│
-├── RETAIL_SALES_PERFORMANCE_ANALYSIS.sql   # All cleaning and EDA queries
-└── README.md                               # Project documentation
+```bash
+pnpm add @orbital/pulse-webhooks @orbital/pulse-core
 ```
 
----
+## What it does
 
-## 👤 Author
+`pulse-webhooks` is the "push" side of Orbital. It listens to a `Watcher`, serializes events to JSON, signs the payload with HMAC-SHA256, and POSTs to one or more endpoints. On transient failure it retries each URL independently with exponential backoff; on permanent failure it emits a `webhook.failed` event you can catch and route to a dead-letter queue.
 
-**Dave**
-Aspiring Data Analyst | SQL • MySQL • Data Cleaning • EDA
+Consumers verify the signature using the shared secret you provisioned — `verifyWebhook` is exported for that purpose.
 
----
+## Quickstart — sender side
 
-*Dataset sourced from Kaggle for educational and portfolio purposes.*
+```ts
+import { EventEngine } from "@orbital/pulse-core";
+import { WebhookDelivery } from "@orbital/pulse-webhooks";
+
+const engine = new EventEngine({ network: "testnet" });
+engine.start();
+
+const watcher = engine.subscribe("GABC...");
+
+new WebhookDelivery(watcher, {
+  url: [
+    "https://your-app.com/hooks/stellar",
+    "https://staging.your-app.com/hooks/stellar",
+  ],
+  secret: process.env.WEBHOOK_SECRET!,
+  retries: 3,
+  deliveryTimeoutMs: 10_000,
+});
+```
+
+## Quickstart — receiver side
+
+```ts
+import { verifyWebhook } from "@orbital/pulse-webhooks";
+import express from "express";
+
+const app = express();
+
+app.post(
+  "/hooks/stellar",
+  express.raw({ type: "application/json" }),
+  (req, res) => {
+    const signature = req.header("x-orbital-signature");
+    const timestamp = req.header("x-orbital-timestamp");
+    if (!signature || !timestamp) return res.sendStatus(400);
+
+    const event = verifyWebhook(
+      req.body,
+      signature,
+      process.env.WEBHOOK_SECRET!,
+      timestamp,
+      { maxAgeMs: 5 * 60 * 1000 }, // reject signatures older than 5 minutes
+    );
+    if (!event) return res.sendStatus(401);
+
+    // event is a verified NormalizedEvent
+    console.log(`Verified payment: ${event.amount} ${event.asset}`);
+    res.sendStatus(200);
+  },
+);
+```
+
+## Verifying in Cloudflare Workers
+
+Cloudflare Workers don't have Node.js crypto — they use Web Crypto API. Use `verifyWebhookEdge` for edge runtime compatibility:
+
+```js
+import { verifyWebhookEdge } from "@orbital/pulse-webhooks";
+
+export default {
+  async fetch(request, env, ctx) {
+    if (request.method !== "POST") {
+      return new Response("Method not allowed", { status: 405 });
+    }
+
+    const signature = request.headers.get("x-orbital-signature");
+    const timestamp = request.headers.get("x-orbital-timestamp");
+
+    if (!signature || !timestamp) {
+      return new Response("Missing headers", { status: 400 });
+    }
+
+    const payload = await request.text();
+    const event = await verifyWebhookEdge(
+      payload,
+      signature,
+      env.WEBHOOK_SECRET,
+      timestamp,
+      { maxAgeMs: 5 * 60 * 1000 }, // reject signatures older than 5 minutes
+    );
+
+    if (!event) {
+      return new Response("Invalid signature", { status: 401 });
+    }
+
+    // event is a verified NormalizedEvent
+    console.log(`Verified payment: ${event.amount} ${event.asset}`);
+
+    // Process the webhook...
+    return new Response("Webhook processed", { status: 200 });
+  },
+};
+```
+
+**Key differences for Workers:**
+
+- Use `verifyWebhookEdge` instead of `verifyWebhook`
+- Function is async (returns Promise)
+- Uses Web Crypto API instead of Node.js crypto
+- Works in Cloudflare Workers, Deno, and browsers
+
+## API
+
+### `new WebhookDelivery(watcher, config)`
+
+Attaches a delivery driver to a `Watcher`. Every event the watcher emits is delivered to each URL in `config.url`.
+
+| Field                         | Type                 | Default  | Description                                                                           |
+| ----------------------------- | -------------------- | -------- | ------------------------------------------------------------------------------------- |
+| `config.url`                  | `string \| string[]` | —        | One destination endpoint or a fan-out list of endpoints. Must be HTTPS in production. |
+| `config.secret`               | `string`             | —        | Shared secret used to sign payloads                                                   |
+| `config.retries`              | `number`             | `3`      | Number of retry attempts before emitting `webhook.failed`                             |
+| `config.deliveryTimeoutMs`    | `number`             | `10_000` | Abort threshold for each HTTP attempt                                                 |
+| `config.allowPrivateNetworks` | `boolean`            | `false`  | If true, bypass SSRF checks for local/private IP ranges                               |
+| `config.random`               | `() => number`       | `random` | Optional RNG for testing jitter. Defaults to `Math.random`.                           |
+
+### `verifyWebhook(payload, signature, secret, timestamp, options?)` → `NormalizedEvent | null`
+
+Verifies that `payload` was signed with `secret` using `timestamp + "." + payload`. Returns the parsed event on success, `null` on any failure (bad signature, malformed JSON, invalid timestamp, length mismatch, or signature outside the replay window).
+
+Uses `crypto.timingSafeEqual` under the hood — do not roll your own comparison.
+
+| Option        | Type     | Default   | Description                                                    |
+| ------------- | -------- | --------- | -------------------------------------------------------------- |
+| `maxAgeMs`    | `number` | `300_000` | Reject signatures older than this many milliseconds            |
+| `clockSkewMs` | `number` | `30_000`  | Clock-skew allowance for sender/receiver time differences      |
+| `nowMs`       | `number` | `Date.now()` | Override current time (useful in tests)                     |
+
+### `verifyWebhookEdge(payload, signature, secret, timestamp, options?)` → `Promise<NormalizedEvent | null>`
+
+Edge-compatible version of `verifyWebhook` using Web Crypto API. Works in Cloudflare Workers, Deno, and browsers. Returns a Promise that resolves to the parsed event on success, `null` on any failure (including signatures outside the replay window).
+
+Uses constant-time comparison and Web Crypto for HMAC-SHA256 verification. Accepts the same `options` as `verifyWebhook` (`maxAgeMs`, `clockSkewMs`, `nowMs`).
+
+### Failure events
+
+When a delivery cannot be completed, the `Watcher` emits special events for routing and debugging.
+
+#### `webhook.failed`
+
+Emitted after all retry attempts are exhausted for a given URL. The event payload is a `NormalizedEvent` where the `raw` field is a `WebhookFailureRaw` object:
+
+```ts
+import type { WebhookFailureRaw } from "@orbital/pulse-webhooks";
+
+watcher.on("webhook.failed", (event) => {
+  const meta = event.raw as WebhookFailureRaw;
+  console.error(`Delivery failed to ${meta.url}: ${meta.error}`);
+  console.log(`Original event: ${meta.originalEvent.type}`);
+});
+```
+
+#### `webhook.dropped`
+
+Emitted when a pending retry is dropped because the `maxConcurrentRetries` cap has been reached. This happens before the retry is even attempted. The `raw` field is a `WebhookDroppedRaw` object:
+
+```ts
+import type { WebhookDroppedRaw } from "@orbital/pulse-webhooks";
+
+watcher.on("webhook.dropped", (event) => {
+  const meta = event.raw as WebhookDroppedRaw;
+  console.warn(`Dropped event for ${meta.url} (retry cap of ${meta.maxConcurrentRetries} hit)`);
+});
+```
+
+## Delivery contract
+
+- **Request method:** `POST`
+- **Content-Type:** `application/json`
+- **Body:** The full `NormalizedEvent`, JSON-serialized
+- **Headers:**
+  - `x-orbital-signature`: hex-encoded HMAC-SHA256 of `x-orbital-timestamp + "." + raw body`
+  - `x-orbital-timestamp`: Unix epoch milliseconds as a string (for example: `1714176000000`)
+  - `x-orbital-attempt`: `1`, `2`, … up to `retries`
+- **Success:** Any 2xx response
+- **Retry:** Any non-2xx, network error, or timeout. Backoff is exponential: `2^(attempt-1) × 1000 ms`.
+- **Failure:** After `retries` unsuccessful attempts for a given URL, the watcher emits `webhook.failed` with the original event in `raw.originalEvent` and the failed target in `raw.url`.
+
+## Dead Letter Queue (DLQ)
+
+Failed webhooks are automatically tracked in a `DeadLetterStore`. Query failures by URL, time window, or limit.
+
+```ts
+import { DeadLetterStore, WebhookDelivery } from "@orbital/pulse-webhooks";
+
+const dlq = new DeadLetterStore();
+
+const delivery = new WebhookDelivery(watcher, config, dlq);
+
+// Query all failures for a specific URL in a time window
+const failures = dlq.list({
+  url: "https://example.com/webhooks",
+  since: Date.now() - 24 * 60 * 60 * 1000, // last 24h
+  limit: 100,
+});
+
+failures.forEach((entry) => {
+  console.log(`Failed at ${entry.timestamp}: ${entry.error}`);
+  console.log(`Event:`, entry.event);
+  console.log(`Attempts:`, entry.attempts);
+});
+```
+
+### `new DeadLetterStore()`
+
+Creates a new dead letter store for tracking failed webhook deliveries.
+
+### `store.add(url, event, error, attempts)` → `string`
+
+Adds a failed delivery record. Returns a unique `id` you can use to retrieve or remove the entry later.
+
+### `store.list(filter)` → `DeadLetterEntry[]`
+
+Queries the store with optional filters. Returns entries sorted by timestamp (oldest first).
+
+| Filter field | Type     | Description                                     |
+| ------------ | -------- | ----------------------------------------------- |
+| `url`        | `string` | Exact URL match                                 |
+| `since`      | `number` | Unix ms >= this value (inclusive)               |
+| `until`      | `number` | Unix ms <= this value (inclusive)               |
+| `limit`      | `number` | Return at most this many entries (oldest first) |
+
+All filters are optional. Combine them to build operational queries:
+
+```ts
+// All failures for a specific URL
+dlq.list({ url: "https://example.com/webhooks" });
+
+// Failures in the last hour
+dlq.list({ since: Date.now() - 60 * 60 * 1000 });
+
+// Recent failures for a specific URL, limit to 50
+dlq.list({
+  url: "https://example.com/webhooks",
+  since: Date.now() - 24 * 60 * 60 * 1000,
+  limit: 50,
+});
+```
+
+### `store.get(id)` → `DeadLetterEntry | undefined`
+
+Retrieve a specific entry by ID.
+
+### `store.remove(id)` → `boolean`
+
+Remove an entry from the store. Returns `true` if removed, `false` if not found.
+
+### `store.clear()`
+
+Remove all entries from the store.
+
+### `store.size()` → `number`
+
+Get the total number of entries in the store.
+
+## Index Requirements for Adapter Authors
+
+If you persist the dead letter store to a database, create these indexes for query efficiency:
+
+```sql
+-- Primary: partition dead letter entries by URL for fast URL-first queries
+CREATE INDEX dlq_url_idx ON dead_letter_store(url);
+
+-- Secondary: partition by timestamp for time-window queries
+CREATE INDEX dlq_timestamp_idx ON dead_letter_store(timestamp);
+
+-- Composite: accelerate combined (URL, timestamp) queries
+CREATE INDEX dlq_url_timestamp_idx ON dead_letter_store(url, timestamp);
+```
+
+### Query patterns and their indexes:
+
+| Pattern                                | Recommended index(es)   |
+| -------------------------------------- | ----------------------- |
+| `list({ url })`                        | `dlq_url_idx`           |
+| `list({ since })` or `list({ until })` | `dlq_timestamp_idx`     |
+| `list({ url, since, until })`          | `dlq_url_timestamp_idx` |
+| `list({ url, limit })`                 | `dlq_url_idx`           |
+| `list({ since, until, limit })`        | `dlq_timestamp_idx`     |
+
+**Note:** `limit` does not require an index; it just truncates the result set after filtering.
+
+## Security guarantees
+
+Orbital provides a hardened delivery pipeline for high-stakes financial events. This package enforces several tiers of defense-in-depth:
+
+| Guarantee | Mechanism | Threat Mitigated |
+| :--- | :--- | :--- |
+| **Authenticity** | HMAC-SHA256 signature (`x-orbital-signature`) | Payload tampering |
+| **Integrity** | `timestamp . payload` signing bubble | Replay attacks (when window-checked) |
+| **Side-channel defense** | `crypto.timingSafeEqual` comparison | Timing attacks on signatures |
+| **SSRF Protection** | RFC 1918 & loopback block-list | Internal network exfiltration |
+| **DNS Rebinding defense** | Pre-delivery IP validation | Validation-time vs Request-time IP swaps |
+| **Resource bounding** | `maxConcurrentRetries` + body-size caps | Memory exhaustion / DoS |
+
+### Threat Model
+
+For a full breakdown of adversaries, assets, and mitigations (including secret rotation runbooks and detection signals), see the [core repository SECURITY.md](../../SECURITY.md).
+
+#### Replay window
+`pulse-webhooks` includes a timestamp in every signature and enforces a configurable replay window in both `verifyWebhook` and `verifyWebhookEdge`. Pass `maxAgeMs` in the options argument to bound how old a signature can be before it is rejected. The default is `300_000` (5 minutes), matching the recommendation in `SECURITY.md`.
+
+```ts
+const event = verifyWebhook(payload, signature, secret, timestamp, {
+  maxAgeMs: 5 * 60 * 1000, // 5 minutes — reject replayed signatures
+});
+```
+
+Always pass `maxAgeMs` explicitly. A consumer that omits the option still receives the safe 5-minute default, but being explicit makes the intent clear and guards against future default changes.
+
+## Current limitations
+
+- **Retries live in-process.** Restarting the process loses pending retries. Persistent retry queues with pluggable adapters (Redis, Postgres, S3) ship in Phase 1 — see [`ROADMAP.md`](../../ROADMAP.md#wave-13--cursor-persistence-and-replay-primitives).
+- **Exponential backoff is hard-coded.** Configurable strategies (linear, jittered, capped-at-N-hours) are tracked under [`webhooks`](https://github.com/determined-001/orbital_stellar/labels/webhooks).
+- **No signature versioning.** The header format is fixed at `x-orbital-signature` (HMAC-SHA256 hex) — there is no `v1=…` prefix. If the algorithm needs to change, a future `x-orbital-signature-v2` header will be introduced alongside `v1` for a deprecation window.
+
+## Related documents
+
+- [`docs/ARCHITECTURE.md` § 6 Webhook delivery internals](../../docs/ARCHITECTURE.md#6-webhook-delivery-internals) — full delivery and verification design
+- [`docs/COOKBOOK.md`](../../docs/COOKBOOK.md) — recipes 6–9 cover delivery, verification, fan-out, and dead-letter routing
+- [`docs/open-source-policy.md`](../../docs/open-source-policy.md) — interface vs adapter boundary
+- [`SECURITY.md`](../../SECURITY.md) — threat model, secret rotation runbook, best practices for consumers
+- [`CHANGELOG.md`](../../CHANGELOG.md) — release notes
+
+## License
+
+MIT

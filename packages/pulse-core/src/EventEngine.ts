@@ -4,6 +4,7 @@ import { EngineAlreadyStartedError, HorizonStreamError } from "./errors.js";
 import { SorobanSubscriber } from "./SorobanSubscriber.js";
 import type { ReplayOptions } from "./SorobanSubscriber.js";
 import { toAccountAddress, toContractAddress } from "./address.js";
+import { toStellarAmount } from "./amount.js";
 import type { ContractAddress } from "./address.js";
 import type {
   AccountCreatedEvent,
@@ -186,6 +187,8 @@ export class EventEngine {
       ...config.reconnect,
     };
     this.log = config.logger ?? noop;
+    this.streamKey = config.streamKey ?? "pulse-core-cursor";
+    this.cursorFailureThreshold = config.cursorFailureThreshold ?? 5;
   }
 
   /**
@@ -838,50 +841,6 @@ export class EventEngine {
     return Number.isNaN(date) ? null : Math.max(date - Date.now(), 0);
   }
 
-  private getHeaderValue(error: unknown, headerName: string): string | null {
-    const e = error as Record<string, unknown>;
-    const directHeader =
-      typeof e[headerName.toLowerCase()] === "string"
-        ? (e[headerName.toLowerCase()] as string)
-        : typeof e[headerName] === "string"
-          ? (e[headerName] as string)
-          : null;
-    if (directHeader) {
-      return directHeader;
-    }
-
-    const response = e.response as Record<string, unknown> | undefined;
-    const candidates = [e.headers, response?.headers];
-
-    for (const headers of candidates) {
-      if (!headers || typeof headers !== "object") {
-        continue;
-      }
-
-      if (typeof (headers as any).get === "function") {
-        const value =
-          (headers as any).get(headerName) ??
-          (headers as any).get(headerName.toLowerCase());
-        if (typeof value === "string") {
-          return value;
-        }
-      }
-
-      const value =
-        typeof (headers as any)[headerName] === "string"
-          ? (headers as any)[headerName]
-          : typeof (headers as any)[headerName.toLowerCase()] === "string"
-            ? (headers as any)[headerName.toLowerCase()]
-            : null;
-
-      if (typeof value === "string") {
-        return value;
-      }
-    }
-
-    return null;
-  }
-
   private closeStream(): void {
     if (!this.stopStream) {
       return;
@@ -974,7 +933,7 @@ export class EventEngine {
         type: "unknown",
         to: toAccountAddress(r.to as string),
         from: toAccountAddress(r.from as string),
-        amount: r.amount as string,
+        amount: toStellarAmount(r.amount as string),
         asset,
         timestamp: r.created_at as string,
         raw: record,
@@ -1089,7 +1048,7 @@ export class EventEngine {
       source: toAccountAddress(r.source_account),
       buying_asset,
       selling_asset,
-      amount,
+      amount: toStellarAmount(amount),
       price: r.price as string,
       timestamp: r.created_at,
       raw,
@@ -1323,7 +1282,7 @@ export class EventEngine {
         predicate: c.predicate,
       })),
       asset,
-      amount: r.amount as string,
+      amount: toStellarAmount(r.amount as string),
       timestamp: r.created_at as string,
       raw,
     };
@@ -1923,6 +1882,7 @@ export function normalizeContractEvent(
     contractId,
     txHash,
     ledger,
+    ledgerClosedAt,
     type,
     inSuccessfulContractCall,
     topic,
@@ -1941,7 +1901,7 @@ export function normalizeContractEvent(
       args: Array.isArray(rawRpcEvent.args) ? (rawRpcEvent.args as unknown[]) : [],
       txHash: String(txHash),
       ledger: Number(ledger),
-      timestamp: typeof created_at === "string" ? created_at : new Date().toISOString(),
+      timestamp: typeof e.created_at === "string" ? e.created_at : new Date().toISOString(),
       raw: rawRpcEvent,
     };
   }

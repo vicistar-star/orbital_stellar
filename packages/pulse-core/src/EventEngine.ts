@@ -69,6 +69,13 @@ type NormalizedEventOrPending =
   | ContractInvokedEvent
   | ContractEmittedEvent;
 
+/**
+ * Adds the lazy, non-enumerable `timestampDate` getter to an event type.
+ * Applied at runtime by {@link withTimestampDate} once an event has been
+ * normalized, so every event leaving the engine carries it.
+ */
+type Timestamped<T> = T & { readonly timestampDate: Date };
+
 type StreamCallbacks = {
   onmessage: (record: unknown) => void;
   onerror: (error: unknown) => void;
@@ -111,7 +118,7 @@ function stableFilterKey(filters: ContractFilter[]): string {
  * The Date is parsed from `event.timestamp` on first access and cached.
  * JSON.stringify output is unaffected because the property is non-enumerable.
  */
-function withTimestampDate<T extends { timestamp: string }>(event: T): T {
+function withTimestampDate<T extends { timestamp: string }>(event: T): Timestamped<T> {
   let cached: Date | undefined;
   Object.defineProperty(event, "timestampDate", {
     enumerable: false,
@@ -121,7 +128,7 @@ function withTimestampDate<T extends { timestamp: string }>(event: T): T {
       return cached;
     },
   });
-  return event;
+  return event as Timestamped<T>;
 }
 
 export class EventEngine {
@@ -903,7 +910,7 @@ export class EventEngine {
     return name !== undefined ? `${name} (${key})` : `address ${key}`;
   }
 
-  private normalize(record: unknown): NormalizedEventOrPending | null {
+  private normalize(record: unknown): Timestamped<NormalizedEventOrPending> | null {
     const result = this._normalize(record);
     return result ? withTimestampDate(result) : null;
   }
@@ -1553,7 +1560,7 @@ export class EventEngine {
   }
 
   /** Dispatch a contract event (invoked or emitted) to all matching contract watchers. */
-  private dispatchContractEvent(event: ContractInvokedEvent | ContractEmittedEvent): void {
+  private dispatchContractEvent(event: Timestamped<ContractInvokedEvent | ContractEmittedEvent>): void {
     for (const { watcher, filters } of this.contractRegistry.values()) {
       if (this.matchesContractFilters(event, filters)) {
         watcher.emit(event.type, event);
@@ -1562,7 +1569,7 @@ export class EventEngine {
     }
   }
 
-  private route(event: NormalizedEventOrPending): void {
+  private route(event: Timestamped<NormalizedEventOrPending>): void {
     // Check if Soroban source is paused for contract events
     if ((event.type === "contract.invoked" || event.type === "contract.emitted") && this.pausedSources.has("soroban")) {
       return;
@@ -1793,11 +1800,13 @@ export class EventEngine {
   private withResolvedType(
     event: PendingPaymentEvent,
     type: PaymentEventType,
-  ): PaymentEvent {
-    return {
+  ): Timestamped<PaymentEvent> {
+    // `timestampDate` is a non-enumerable getter, so spreading drops it —
+    // re-attach it to the resolved event so derived payment events carry it too.
+    return withTimestampDate({
       ...event,
       type,
-    };
+    });
   }
 }
 

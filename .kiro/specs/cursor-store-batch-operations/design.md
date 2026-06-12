@@ -2,7 +2,7 @@
 
 ## Overview
 
-This feature extends the `CursorStore` abstraction in `@orbital/pulse-core` with optional batch methods — `getMany` and `setMany` — that allow multi-source engines to read and write N cursors in a single network or database round-trip instead of N sequential calls.
+This feature extends the `CursorStore` abstraction in `@orbital-stellar/pulse-core` with optional batch methods — `getMany` and `setMany` — that allow multi-source engines to read and write N cursors in a single network or database round-trip instead of N sequential calls.
 
 The design follows three principles:
 

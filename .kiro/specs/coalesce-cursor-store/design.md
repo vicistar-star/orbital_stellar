@@ -2,7 +2,7 @@
 
 ## Overview
 
-`coalesceCursorStore` is a write-coalescing decorator for any `CursorStore` implementation in `@orbital/pulse-core`. High-throughput Stellar event engines call `set` after every processed event; stores like Postgres and S3 charge per write, making per-event persistence expensive. The wrapper buffers all writes in an in-memory `Map` (the PendingBuffer) and drains it to the underlying store on a configurable `setInterval` timer, reducing N writes per interval to at most one `setMany` call.
+`coalesceCursorStore` is a write-coalescing decorator for any `CursorStore` implementation in `@orbital-stellar/pulse-core`. High-throughput Stellar event engines call `set` after every processed event; stores like Postgres and S3 charge per write, making per-event persistence expensive. The wrapper buffers all writes in an in-memory `Map` (the PendingBuffer) and drains it to the underlying store on a configurable `setInterval` timer, reducing N writes per interval to at most one `setMany` call.
 
 The wrapper is transparent to callers — it extends `CursorStore` and overrides all four read/write methods — and adds two lifecycle methods: `flush()` for graceful shutdown and `dispose()` to cancel the background timer. The maximum data-loss window on an unclean exit is bounded by `intervalMs`.
 

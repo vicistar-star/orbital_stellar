@@ -1,5 +1,5 @@
 {
-  "name": "@orbital/pulse-notify",
+  "name": "@orbital-stellar/pulse-notify",
   "version": "0.1.0",
   "description": "React hooks for live Stellar events — useStellarEvent, useStellarPayment, useStellarActivity.",
   "license": "MIT",
@@ -26,7 +26,7 @@
     "size": "size-limit"
   },
   "dependencies": {
-    "@orbital/pulse-core": "workspace:*"
+    "@orbital-stellar/pulse-core": "workspace:*"
   },
   "devDependencies": {
     "@size-limit/preset-small-lib": "^11.0.0",

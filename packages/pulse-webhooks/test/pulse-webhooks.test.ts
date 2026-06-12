@@ -1,7 +1,7 @@
 import { createHmac } from "crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { Watcher } from "@orbital/pulse-core";
+import { Watcher } from "@orbital-stellar/pulse-core";
 import type { WebhookMetrics } from "../src/index.js";
 import {
   DeadLetterStore,

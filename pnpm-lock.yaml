@@ -19,7 +19,7 @@ importers:
 
   apps/web:
     dependencies:
-      '@orbital/pulse-core':
+      '@orbital-stellar/pulse-core':
         specifier: workspace:*
         version: link:../../packages/pulse-core
       framer-motion:
@@ -124,7 +124,7 @@ importers:
 
   packages/pulse-notify:
     dependencies:
-      '@orbital/pulse-core':
+      '@orbital-stellar/pulse-core':
         specifier: workspace:*
         version: link:../pulse-core
     devDependencies:
@@ -164,7 +164,7 @@ importers:
 
   packages/pulse-webhooks:
     dependencies:
-      '@orbital/pulse-core':
+      '@orbital-stellar/pulse-core':
         specifier: workspace:*
         version: link:../pulse-core
     devDependencies:

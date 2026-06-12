@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import type { NormalizedEvent, PaymentEvent } from "@orbital/pulse-core";
+import type { NormalizedEvent, PaymentEvent } from "@orbital-stellar/pulse-core";
 import { acquireEventConnection } from "./connectionPool.js";
 import { acquireWsConnection } from "./wsTransport.js";
 export { useStellarEventSuspense } from "./useStellarEventSuspense.js";

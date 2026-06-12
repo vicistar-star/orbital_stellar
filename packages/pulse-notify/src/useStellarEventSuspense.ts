@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { NormalizedEvent } from "@orbital/pulse-core";
+import type { NormalizedEvent } from "@orbital-stellar/pulse-core";
 import { acquireEventConnection } from "./connectionPool.js";
 import type { UseEventConfig } from "./index.js";
 
@@ -82,7 +82,7 @@ function getOrCreateResource<T extends NormalizedEvent>(
  * ```tsx
  * "use client";
  * import { Suspense } from "react";
- * import { useStellarEventSuspense } from "@orbital/pulse-notify";
+ * import { useStellarEventSuspense } from "@orbital-stellar/pulse-notify";
  *
  * function LiveBalance({ address }: { address: string }) {
  *   // Never returns null — component is suspended until data arrives.

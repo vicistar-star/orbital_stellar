@@ -2,7 +2,7 @@
 
 ## Overview
 
-Implement `coalesceCursorStore`, a write-coalescing decorator for any `CursorStore` in `@orbital/pulse-core`. The implementation lives in a single new source file, is exported from the package index, and is covered by both example-based unit tests (with Vitest fake timers) and property-based tests (fast-check) for all 9 correctness properties defined in the design.
+Implement `coalesceCursorStore`, a write-coalescing decorator for any `CursorStore` in `@orbital-stellar/pulse-core`. The implementation lives in a single new source file, is exported from the package index, and is covered by both example-based unit tests (with Vitest fake timers) and property-based tests (fast-check) for all 9 correctness properties defined in the design.
 
 ## Tasks
 

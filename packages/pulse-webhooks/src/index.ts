@@ -1,4 +1,4 @@
-import type { NormalizedEvent, Watcher, WatcherNotification } from "@orbital/pulse-core";
+import type { NormalizedEvent, Watcher, WatcherNotification } from "@orbital-stellar/pulse-core";
 import { createHmac, timingSafeEqual } from "crypto";
 
 import { DeadLetterStore } from "./MemoryDeadLetterStore.js";

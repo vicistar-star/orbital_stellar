@@ -84,10 +84,10 @@ Multi-source engines (e.g., engines watching multiple Stellar addresses simultan
 
 ### Requirement 6: Batch Methods Are Exported from pulse-core Public API
 
-**User Story:** As a consumer of the `@orbital/pulse-core` package, I want `getMany` and `setMany` to be part of the exported `CursorStore` type, so that I can use them without importing internal modules.
+**User Story:** As a consumer of the `@orbital-stellar/pulse-core` package, I want `getMany` and `setMany` to be part of the exported `CursorStore` type, so that I can use them without importing internal modules.
 
 #### Acceptance Criteria
 
-1. THE `@orbital/pulse-core` package SHALL export the updated `CursorStore` abstract base class — including the `getMany(keys: string[]): Promise<Record<string, string | null>>` and `setMany(entries: Record<string, string>): Promise<void>` method signatures — from its public `index.ts`, without removing any previously exported symbols.
-2. THE `@orbital/pulse-core` package SHALL export the `RedisCursorStore` class and the `RedisLike` interface (as defined in the Glossary) from its public `index.ts` as named exports.
-3. WHEN a consumer imports `CursorStore` from `@orbital/pulse-core`, THE imported type SHALL include `getMany` and `setMany` method signatures resolvable by the TypeScript compiler without requiring any additional imports.
+1. THE `@orbital-stellar/pulse-core` package SHALL export the updated `CursorStore` abstract base class — including the `getMany(keys: string[]): Promise<Record<string, string | null>>` and `setMany(entries: Record<string, string>): Promise<void>` method signatures — from its public `index.ts`, without removing any previously exported symbols.
+2. THE `@orbital-stellar/pulse-core` package SHALL export the `RedisCursorStore` class and the `RedisLike` interface (as defined in the Glossary) from its public `index.ts` as named exports.
+3. WHEN a consumer imports `CursorStore` from `@orbital-stellar/pulse-core`, THE imported type SHALL include `getMany` and `setMany` method signatures resolvable by the TypeScript compiler without requiring any additional imports.

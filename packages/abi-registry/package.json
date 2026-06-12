@@ -1,5 +1,5 @@
 {
-  "name": "@orbital/abi-registry",
+  "name": "@orbital-stellar/abi-registry",
   "version": "0.1.0",
   "description": "Canonical Soroban ABI client, schema helpers, and registry publisher interface for Orbital.",
   "license": "MIT",

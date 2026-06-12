@@ -320,7 +320,7 @@ export type AccountMergeEvent = {
  * namespace export:
  *
  * ```ts
- * import type { events } from "@orbital/pulse-core";
+ * import type { events } from "@orbital-stellar/pulse-core";
  * type Payment = events.PaymentEvent;
  * type AccountCreated = events.AccountCreatedEvent;
  * ```
@@ -422,7 +422,7 @@ export interface Logger {
 
 /**
  * Minimal interface for an ABI registry client.
- * Satisfied by `AbiRegistryClient` from `@orbital/abi-registry`, or any
+ * Satisfied by `AbiRegistryClient` from `@orbital-stellar/abi-registry`, or any
  * object with a compatible `getSpec` method (useful for testing).
  */
 export interface AbiRegistryClientLike {
@@ -569,7 +569,7 @@ export type ContractSubscribeOptions = {
  * @see {@link events} for the full list of narrower per-event types.
  *
  * @example
- * import type { events } from "@orbital/pulse-core";
+ * import type { events } from "@orbital-stellar/pulse-core";
  * function handlePayment(e: events.PaymentEvent) { ... }
  */
 export * as events from "./events.js";

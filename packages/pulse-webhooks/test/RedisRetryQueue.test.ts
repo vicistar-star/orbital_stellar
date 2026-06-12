@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { NormalizedEvent } from "@orbital/pulse-core";
+import type { NormalizedEvent } from "@orbital-stellar/pulse-core";
 import {
   RedisRetryQueue,
   type RedisLike,

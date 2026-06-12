@@ -1,5 +1,5 @@
 {
-  "name": "@orbital/pulse-webhooks",
+  "name": "@orbital-stellar/pulse-webhooks",
   "version": "0.1.0",
   "description": "HMAC-signed webhook delivery and verification for Stellar events (Node + edge runtimes).",
   "license": "MIT",
@@ -24,7 +24,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@orbital/pulse-core": "workspace:*"
+    "@orbital-stellar/pulse-core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",

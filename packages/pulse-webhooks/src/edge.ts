@@ -1,4 +1,4 @@
-import type { NormalizedEvent } from "@orbital/pulse-core";
+import type { NormalizedEvent } from "@orbital-stellar/pulse-core";
 
 import type { VerifyWebhookOptions } from "./types.js";
 import { DEFAULT_MAX_AGE_MS, DEFAULT_CLOCK_SKEW_MS } from "./types.js";

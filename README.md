@@ -49,10 +49,10 @@ The longer-form thesis, the multi-year vision, and the SCF grant case live in [`
 
 | Package | Description | Status |
 |---|---|---|
-| [`@orbital/pulse-core`](./packages/pulse-core) | EventEngine — Horizon subscription, normalization, reconnection, rate-limit handling | ✅ Phase 0 |
-| [`@orbital/pulse-webhooks`](./packages/pulse-webhooks) | HMAC-signed webhook delivery + verification (Node + edge runtimes) | ✅ Phase 0 |
-| [`@orbital/pulse-notify`](./packages/pulse-notify) | React hooks — `useStellarEvent`, `useStellarPayment`, `useStellarActivity` | ✅ Phase 0 |
-| [`@orbital/abi-registry`](./packages/abi-registry) | Canonical Soroban ABI client, schema helpers, and registry publisher interface | ✅ Phase 1 |
+| [`@orbital-stellar/pulse-core`](./packages/pulse-core) | EventEngine — Horizon subscription, normalization, reconnection, rate-limit handling | ✅ Phase 0 |
+| [`@orbital-stellar/pulse-webhooks`](./packages/pulse-webhooks) | HMAC-signed webhook delivery + verification (Node + edge runtimes) | ✅ Phase 0 |
+| [`@orbital-stellar/pulse-notify`](./packages/pulse-notify) | React hooks — `useStellarEvent`, `useStellarPayment`, `useStellarActivity` | ✅ Phase 0 |
+| [`@orbital-stellar/abi-registry`](./packages/abi-registry) | Canonical Soroban ABI client, schema helpers, and registry publisher interface | ✅ Phase 1 |
 
 > The full classic-operation taxonomy is shipped (payments, account create/merge/options/bump-sequence, trustlines + auth, offers, claimables, liquidity pools, manage-data). Soroban contract events are Phase 1 (Q2–Q3 2026) — see [`ROADMAP.md`](ROADMAP.md).
 
@@ -71,15 +71,15 @@ pnpm install
 Once published, install only what you need:
 
 ```bash
-pnpm add @orbital/pulse-core             # always
-pnpm add @orbital/pulse-webhooks         # if you push events to HTTPS endpoints
-pnpm add @orbital/pulse-notify react     # if you render live events in React
+pnpm add @orbital-stellar/pulse-core             # always
+pnpm add @orbital-stellar/pulse-webhooks         # if you push events to HTTPS endpoints
+pnpm add @orbital-stellar/pulse-notify react     # if you render live events in React
 ```
 
 ### Subscribe to events directly
 
 ```ts
-import { EventEngine } from "@orbital/pulse-core";
+import { EventEngine } from "@orbital-stellar/pulse-core";
 
 const engine = new EventEngine({ network: "testnet" });
 engine.start();
@@ -98,8 +98,8 @@ watcher.on("*", (event) => {
 ### Deliver events to a webhook
 
 ```ts
-import { EventEngine } from "@orbital/pulse-core";
-import { WebhookDelivery } from "@orbital/pulse-webhooks";
+import { EventEngine } from "@orbital-stellar/pulse-core";
+import { WebhookDelivery } from "@orbital-stellar/pulse-webhooks";
 
 const engine = new EventEngine({ network: "mainnet" });
 engine.start();
@@ -119,7 +119,7 @@ Receivers verify the signature with `verifyWebhook` (Node) or `verifyWebhookEdge
 
 ```tsx
 "use client";
-import { useStellarPayment } from "@orbital/pulse-notify";
+import { useStellarPayment } from "@orbital-stellar/pulse-notify";
 
 export function IncomingPayments({ address }: { address: string }) {
   const { event, connected } = useStellarPayment(
@@ -145,18 +145,18 @@ flowchart LR
     RPC["Stellar RPC<br/>(Soroban) — Phase 1"]
   end
 
-  subgraph Core["@orbital/pulse-core"]
+  subgraph Core["@orbital-stellar/pulse-core"]
     Engine["EventEngine<br/>subscribe · reconnect · backoff"]
     Watcher["Watcher<br/>per-address pub/sub"]
     Normalize["Normalize<br/>13 op types → typed events"]
   end
 
-  subgraph Webhooks["@orbital/pulse-webhooks"]
+  subgraph Webhooks["@orbital-stellar/pulse-webhooks"]
     Sign["HMAC-SHA256<br/>+ retry + SSRF"]
     Verify["verifyWebhook<br/>verifyWebhookEdge"]
   end
 
-  subgraph Notify["@orbital/pulse-notify"]
+  subgraph Notify["@orbital-stellar/pulse-notify"]
     Hooks["useStellarEvent<br/>useStellarPayment<br/>useStellarActivity"]
   end
 
@@ -204,8 +204,8 @@ Two paths:
 
 - **Now (Phase 0)** — Full classic operation taxonomy, edge-runtime webhook verification, React hooks ✅
 - **Q2–Q3 2026 (Phase 1, `v1.0`)** — Soroban event subscription, ABI registry client, cursor persistence, replay adapters, npm publish, stability pledge
-- **2027 (Phase 2)** — `@orbital/hooks`, `@orbital/payments`, `@orbital/auth`, first SEP submission
-- **2028+ (Phase 3)** — `@orbital/x402`, `@orbital/agent-sdk`, intent compiler
+- **2027 (Phase 2)** — `@orbital-stellar/hooks`, `@orbital-stellar/payments`, `@orbital-stellar/auth`, first SEP submission
+- **2028+ (Phase 3)** — `@orbital-stellar/x402`, `@orbital-stellar/agent-sdk`, intent compiler
 
 Full multi-year plan in [`ROADMAP.md`](ROADMAP.md).
 

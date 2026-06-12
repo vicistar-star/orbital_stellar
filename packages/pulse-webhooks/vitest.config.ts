@@ -7,7 +7,7 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            "@orbital/pulse-core": fileURLToPath(
+            "@orbital-stellar/pulse-core": fileURLToPath(
                 new URL("../pulse-core/src/index.ts", import.meta.url)
             ),
         },

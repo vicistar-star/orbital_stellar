@@ -1,5 +1,6 @@
 # Orbital
 
+[![npm](https://img.shields.io/npm/v/@orbital-stellar/pulse-core?style=flat-square&logo=npm&label=pulse-core)](https://www.npmjs.com/package/@orbital-stellar/pulse-core)
 [![License: MIT](https://img.shields.io/github/license/determined-001/orbital_stellar?style=flat-square)](LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/determined-001/orbital_stellar/ci.yml?branch=main&style=flat-square&label=ci)](https://github.com/determined-001/orbital_stellar/actions/workflows/ci.yml)
 [![CodeQL](https://img.shields.io/github/actions/workflow/status/determined-001/orbital_stellar/codeql.yml?branch=main&style=flat-square&label=codeql)](https://github.com/determined-001/orbital_stellar/actions/workflows/codeql.yml)
@@ -260,6 +261,6 @@ The list above is the curated **all-contributors** set. For the full commit hist
 
 ## Community
 
-- GitHub Discussions: _(enable via repo settings — see Drips funding plan)_
+- [GitHub Discussions](https://github.com/determined-001/orbital_stellar/discussions) — questions, ideas, design discussion, and help.
 - Twitter: _(handle pending)_
 - Discord: _(invite pending)_

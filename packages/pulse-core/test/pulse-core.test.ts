@@ -17,7 +17,6 @@ import type {
   RawHorizonLiquidityPoolWithdraw,
   RawHorizonAllowTrust,
   RawHorizonSetTrustLineFlags,
-  RawSorobanEvent,
 } from "../src/index.js";
 
 type StreamHandlers = {

@@ -67,6 +67,7 @@ import type {
   RawSorobanEvent,
 } from "./index.js";
 import { UnknownNetworkError, NETWORK_PASSPHRASES } from "./index.js";
+import { normalizeClaimPredicate } from "./claimPredicate.js";
 
 type PendingPaymentEvent = Omit<PaymentEvent, "type"> & { type: "unknown" };
 type NormalizedEventOrPending =
@@ -1479,7 +1480,7 @@ export class EventEngine {
       balanceId: r.balance_id as string,
       claimants: (r.claimants as Array<Record<string, unknown>>).map((c) => ({
         destination: toAccountAddress(c.destination as string),
-        predicate: c.predicate,
+        predicate: normalizeClaimPredicate(c.predicate as Record<string, unknown>),
       })),
       asset,
       amount: toStellarAmount(r.amount as string),
